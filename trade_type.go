@@ -2,14 +2,15 @@ package alipay
 
 type Trade struct {
 	NotifyURL    string `json:"-"`
-	ReturnURL    string `json:"-"`
-	AppAuthToken string `json:"-"` // 可选
+	ReturnURL    string `json:"return_url,omitempty"`
+	AppAuthToken string `json:"app_auth_token,omitempty"`
 
 	// biz content，这四个参数是必须的
-	Subject     string `json:"subject"`      // 订单标题
-	OutTradeNo  string `json:"out_trade_no"` // 商户订单号，64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
-	TotalAmount string `json:"total_amount"` // 订单总金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]
-	ProductCode string `json:"product_code"` // 销售产品码，与支付宝签约的产品码名称。 参考官方文档, App 支付时默认值为 QUICK_MSECURITY_PAY
+	ProductCode string `json:"product_code"`        // 销售产品码，与支付宝签约的产品码名称。 参考官方文档, App 支付时默认值为 QUICK_MSECURITY_PAY
+	SellerId    string `json:"seller_id,omitempty"` // 收款支付宝用户ID。 如果该值为空，则默认为商户签约账号对应的支付宝用户ID
+	OutTradeNo  string `json:"out_trade_no"`        // 商户订单号，64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
+	TotalAmount string `json:"total_amount"`        // 订单总金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]
+	Subject     string `json:"subject"`             // 订单标题
 
 	Body               string `json:"body,omitempty"`                 // 订单描述
 	BusinessParams     string `json:"business_params,omitempty"`      // 商户传入业务信息，具体值要和支付宝约定，应用于安全，营销等参数直传场景，格式为json格式
@@ -23,13 +24,13 @@ type Trade struct {
 	PassbackParams      string                 `json:"passback_params,omitempty"`       // 公用回传参数，如果请求时传递了该参数，则返回给商户时会回传该参数。支付宝会在异步通知时将该参数原样返回。本参数必须进行UrlEncode之后才可以发送给支付宝
 	PromoParams         string                 `json:"promo_params,omitempty"`          // 优惠参数 注：仅与支付宝协商后可用
 	RoyaltyInfo         string                 `json:"royalty_info,omitempty"`          // 描述分账信息，json格式，详见分账参数说明
-	SellerId            string                 `json:"seller_id,omitempty"`             // 收款支付宝用户ID。 如果该值为空，则默认为商户签约账号对应的支付宝用户ID
-	SettleInfo          SettleInfo             `json:"settle_info,omitempty"`           // 描述结算信息，json格式，详见结算参数说明
-	SpecifiedChannel    string                 `json:"specified_channel,omitempty"`     // 指定渠道，目前仅支持传入pcredit  若由于用户原因渠道不可用，用户可选择是否用其他渠道支付。  注：该参数不可与花呗分期参数同时传入
-	StoreId             string                 `json:"store_id,omitempty"`              // 商户门店编号。该参数用于请求参数中以区分各门店，非必传项。
-	SubMerchant         SubMerchant            `json:"sub_merchant,omitempty"`          // 间连受理商户信息体，当前只对特殊银行机构特定场景下使用此字段
-	TimeoutExpress      string                 `json:"timeout_express,omitempty"`       // 该笔订单允许的最晚付款时间，逾期将关闭交易。取值范围：1m～15d。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。 该参数数值不接受小数点， 如 1.5h，可转换为 90m。
-	TimeExpire          string                 `json:"time_expire,omitempty"`           // 该笔订单绝对超时时间，格式为yyyy-MM-dd HH:mm:ss
+
+	SettleInfo       *SettleInfo  `json:"settle_info,omitempty"`       // 描述结算信息，json格式，详见结算参数说明
+	SpecifiedChannel string       `json:"specified_channel,omitempty"` // 指定渠道，目前仅支持传入pcredit  若由于用户原因渠道不可用，用户可选择是否用其他渠道支付。  注：该参数不可与花呗分期参数同时传入
+	StoreId          string       `json:"store_id,omitempty"`          // 商户门店编号。该参数用于请求参数中以区分各门店，非必传项。
+	SubMerchant      *SubMerchant `json:"sub_merchant,omitempty"`      // 间连受理商户信息体，当前只对特殊银行机构特定场景下使用此字段
+	TimeoutExpress   string       `json:"timeout_express,omitempty"`   // 该笔订单允许的最晚付款时间，逾期将关闭交易。取值范围：1m～15d。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。 该参数数值不接受小数点， 如 1.5h，可转换为 90m。
+	TimeExpire       string       `json:"time_expire,omitempty"`       // 该笔订单绝对超时时间，格式为yyyy-MM-dd HH:mm:ss
 }
 
 // TradePagePay 统一收单下单并支付页面接口请求参数 https://opendocs.alipay.com/apis/api_1/alipay.trade.page.pay
@@ -442,13 +443,13 @@ type SubMerchantItem struct {
 
 type GoodsDetailItem struct {
 	GoodsId       string `json:"goods_id"`
-	AliPayGoodsId string `json:"alipay_goods_id"`
+	AliPayGoodsId string `json:"alipay_goods_id,omitempty"`
 	GoodsName     string `json:"goods_name"`
 	Quantity      string `json:"quantity"`
 	Price         string `json:"price"`
-	GoodsCategory string `json:"goods_category"`
-	Body          string `json:"body"`
-	ShowUrl       string `json:"show_url"`
+	GoodsCategory string `json:"goods_category,omitempty"`
+	Body          string `json:"body,omitempty"`
+	ShowUrl       string `json:"show_url,omitempty"`
 }
 
 type AgreementParams struct {
@@ -460,11 +461,11 @@ type AgreementParams struct {
 // TradePay 统一收单交易支付接口请求参数 https://docs.open.alipay.com/api_1/alipay.trade.pay/
 type TradePay struct {
 	Trade
-	Scene    string `json:"scene"`               // 必须 支付场景 条码支付，取值：bar_code 声波支付，取值：wave_code, bar_code, wave_code
+	Scene    string `json:"scene,omitempty"`     // 必须 支付场景 条码支付，取值：bar_code 声波支付，取值：wave_code, bar_code, wave_code
 	AuthCode string `json:"auth_code,omitempty"` // 必须 支付授权码
 	AuthNo   string `json:"auth_no,omitempty"`   // 可选 预授权冻结交易号
 
-	BuyerId            string             `json:"buyer_id"` // 可选 家的支付宝用户id，如果为空，会从传入了码值信息中获取买家ID
+	BuyerId            string             `json:"buyer_id,omitempty"` // 可选 家的支付宝用户id，如果为空，会从传入了码值信息中获取买家ID
 	TransCurrency      string             `json:"trans_currency,omitempty"`
 	SettleCurrency     string             `json:"settle_currency,omitempty"`
 	DiscountableAmount string             `json:"discountable_amount,omitempty"` // 可选 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]。 如果该值未传入，但传入了【订单总金额】和【不可打折金额】，则该值默认为【订单总金额】-【不可打折金额】

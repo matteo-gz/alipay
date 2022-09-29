@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
@@ -219,11 +220,11 @@ func (this *Client) URLValues(param Param) (value url.Values, err error) {
 		p.Add("alipay_root_cert_sn", this.rootCertSN)
 	}
 
-	bytes, err := json.Marshal(param)
+	bytes2, err := json.Marshal(param)
 	if err != nil {
 		return nil, err
 	}
-	p.Add("biz_content", string(bytes))
+	p.Add("biz_content", string(bytes2))
 
 	var ps = param.Params()
 	if ps != nil {
@@ -242,7 +243,6 @@ func (this *Client) URLValues(param Param) (value url.Values, err error) {
 	p.Add("sign", sign)
 	return p, nil
 }
-
 func (this *Client) doRequest(method string, param Param, result interface{}) (err error) {
 	var buf io.Reader
 	if param != nil {
@@ -250,16 +250,18 @@ func (this *Client) doRequest(method string, param Param, result interface{}) (e
 		if err != nil {
 			return err
 		}
+		//fmt.Println(p.Encode())
 		buf = strings.NewReader(p.Encode())
 	}
-
+	//this.apiDomain = "http://localhost:8000/"
+	fmt.Println(method, this.apiDomain)
 	req, err := http.NewRequest(method, this.apiDomain, buf)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", kContentType)
-
 	resp, err := this.Client.Do(req)
+
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -273,7 +275,15 @@ func (this *Client) doRequest(method string, param Param, result interface{}) (e
 	}
 
 	var dataStr = string(data)
-
+	fmt.Println("resp:", dataStr, "\n\n")
+	// skip check sign
+	err = json.Unmarshal(data, result)
+	if err != nil {
+		return err
+	}
+	return
+	// skip check sign
+	//return nil
 	var rootNodeName = strings.Replace(param.APIName(), ".", "_", -1) + kResponseSuffix
 
 	var rootIndex = strings.LastIndex(dataStr, rootNodeName)
