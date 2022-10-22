@@ -40,4 +40,5 @@ type TradeNotification struct {
 	VoucherDetailList   string      `json:"voucher_detail_list"`   // 优惠券信息
 	AgreementNo         string      `json:"agreement_no"`          //支付宝签约号
 	ExternalAgreementNo string      `json:"external_agreement_no"` // 商户自定义签约号
+	OutOrderNO          string      `json:"out_order_no"`
 }

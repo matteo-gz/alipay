@@ -76,9 +76,9 @@ func (this *Client) TradeCreate(param TradeCreate) (result *TradeCreateRsp, err 
 }
 
 // TradePay 统一收单交易支付接口 https://docs.open.alipay.com/api_1/alipay.trade.pay/
-func (this *Client) TradePay(param TradePay) (result *TradePayRsp, err error) {
-	err = this.doRequest("POST", param, &result)
-	return result, err
+func (this *Client) TradePay(param TradePay) (result *TradePayRsp, respStr string, err error) {
+	err = this.doRequestV2("POST", param, &result, &respStr)
+	return result, respStr, err
 }
 
 // TradeOrderInfoSync 支付宝订单信息同步接口 https://docs.open.alipay.com/api_1/alipay.trade.orderinfo.sync/

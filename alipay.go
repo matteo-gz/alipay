@@ -276,6 +276,108 @@ func (this *Client) doRequest(method string, param Param, result interface{}) (e
 
 	var dataStr = string(data)
 	fmt.Println("resp:", dataStr, "\n\n")
+
+	// skip check sign
+	err = json.Unmarshal(data, result)
+	if err != nil {
+		return err
+	}
+	return
+	// skip check sign
+	//return nil
+	var rootNodeName = strings.Replace(param.APIName(), ".", "_", -1) + kResponseSuffix
+
+	var rootIndex = strings.LastIndex(dataStr, rootNodeName)
+	var errorIndex = strings.LastIndex(dataStr, kErrorResponse)
+
+	var content string
+	var certSN string
+	var sign string
+
+	if rootIndex > 0 {
+		content, certSN, sign = parseJSONSource(dataStr, rootNodeName, rootIndex)
+		if sign == "" {
+			var errRsp *ErrorRsp
+			if err = json.Unmarshal([]byte(content), &errRsp); err != nil {
+				return err
+			}
+
+			// alipay.open.app.alipaycert.download(应用支付宝公钥证书下载) 没有返回 sign 字段，所以再判断一次 code
+			if errRsp.Code != CodeSuccess {
+				if errRsp != nil {
+					return errRsp
+				}
+				return ErrSignNotFound
+			}
+		}
+	} else if errorIndex > 0 {
+		content, certSN, sign = parseJSONSource(dataStr, kErrorResponse, errorIndex)
+		if sign == "" {
+			var errRsp *ErrorRsp
+			if err = json.Unmarshal([]byte(content), &errRsp); err != nil {
+				return err
+			}
+			return errRsp
+		}
+	} else {
+		return ErrSignNotFound
+	}
+
+	if sign != "" {
+		publicKey, err := this.getAliPayPublicKey(certSN)
+		if err != nil {
+			return err
+		}
+
+		if ok, err := verifyData([]byte(content), sign, publicKey); ok == false {
+			return err
+		}
+	}
+
+	err = json.Unmarshal(data, result)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (this *Client) doRequestV2(method string, param Param, result interface{}, respStr *string) (err error) {
+	var buf io.Reader
+	if param != nil {
+		p, err := this.URLValues(param)
+		if err != nil {
+			return err
+		}
+		//fmt.Println(p.Encode())
+		buf = strings.NewReader(p.Encode())
+	}
+	//this.apiDomain = "http://localhost:8000/"
+	fmt.Println(method, this.apiDomain)
+	req, err := http.NewRequest(method, this.apiDomain, buf)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", kContentType)
+	resp, err := this.Client.Do(req)
+
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	var dataStr = string(data)
+	fmt.Println("resp:", dataStr, "\n\n")
+	if respStr != nil {
+		*respStr = dataStr
+	}
 	// skip check sign
 	err = json.Unmarshal(data, result)
 	if err != nil {
