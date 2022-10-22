@@ -353,7 +353,7 @@ func (this *Client) doRequestV2(method string, param Param, result interface{}, 
 		buf = strings.NewReader(p.Encode())
 	}
 	//this.apiDomain = "http://localhost:8000/"
-	fmt.Println(method, this.apiDomain)
+	//fmt.Println(method, this.apiDomain)
 	req, err := http.NewRequest(method, this.apiDomain, buf)
 	if err != nil {
 		return err
@@ -374,7 +374,7 @@ func (this *Client) doRequestV2(method string, param Param, result interface{}, 
 	}
 
 	var dataStr = string(data)
-	fmt.Println("resp:", dataStr, "\n\n")
+	//fmt.Println("resp:", dataStr, "\n\n")
 	if respStr != nil {
 		*respStr = dataStr
 	}
