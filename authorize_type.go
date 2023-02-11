@@ -77,23 +77,48 @@ func (this UserInfoShare) Params() map[string]string {
 // UserInfoShareRsp 支付宝会员授权信息查询接口响应参数
 type UserInfoShareRsp struct {
 	Content struct {
-		Code               Code   `json:"code"`
-		Msg                string `json:"msg"`
-		SubCode            string `json:"sub_code"`
-		SubMsg             string `json:"sub_msg"`
-		AuthNo             string `json:"auth_no"`
-		UserId             string `json:"user_id"`
-		Avatar             string `json:"avatar"`
-		Province           string `json:"province"`
-		City               string `json:"city"`
-		NickName           string `json:"nick_name"`
-		IsStudentCertified string `json:"is_student_certified"`
-		UserType           string `json:"user_type"`
-		UserStatus         string `json:"user_status"`
-		IsCertified        string `json:"is_certified"`
-		Gender             string `json:"gender"`
+		Code                 Code             `json:"code"`
+		Msg                  string           `json:"msg"`
+		UserNation           string           `json:"user_nation"`
+		IdentityCardAddress  string           `json:"identity_card_address"`
+		IdentityCardProvince string           `json:"identity_card_province"`
+		IdentityCardCity     string           `json:"identity_card_city"`
+		UserId               string           `json:"user_id"`
+		Avatar               string           `json:"avatar"`
+		Phone                string           `json:"phone"`
+		City                 string           `json:"city"`
+		Address              string           `json:"address"`
+		Email                string           `json:"email"`
+		UserName             string           `json:"user_name"`
+		Mobile               string           `json:"mobile"`
+		IsCertified          string           `json:"is_certified"`
+		CertNo               string           `json:"cert_no"`
+		Gender               string           `json:"gender"`
+		DeliverAddresses     DeliverAddresses `json:"deliver_addresses"`
+		SubCode              string           `json:"sub_code"`
+		SubMsg               string           `json:"sub_msg"`
+		AuthNo               string           `json:"auth_no"`
+		Province             string           `json:"province"`
+		NickName             string           `json:"nick_name"`
+		IsStudentCertified   string           `json:"is_student_certified"`
+		UserType             string           `json:"user_type"`
+		UserStatus           string           `json:"user_status"`
 	} `json:"alipay_user_info_share_response"`
 	Sign string `json:"sign"`
+}
+
+// DeliverAddresses 收货地址
+type DeliverAddresses struct {
+	DeliverMobile         string `json:"deliver_mobile"`
+	DeliverPhone          string `json:"deliver_phone"`
+	Address               string `json:"address"`
+	Zip                   string `json:"zip"`
+	DeliverProvince       string `json:"deliver_province"`
+	DeliverCity           string `json:"deliver_city"`
+	DeliverArea           string `json:"deliver_area"`
+	AddressCode           string `json:"address_code"`
+	DeliverFullname       string `json:"deliver_fullname"`
+	DefaultDeliverAddress string `json:"default_deliver_address"`
 }
 
 // OpenAuthTokenApp 换取应用授权令牌请求参数 https://docs.open.alipay.com/api_9/alipay.open.auth.token.app
