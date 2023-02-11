@@ -1,3 +1,6 @@
+  repo https://github.com/matteo-gz/alipay
+  fork from https://github.com/smartwalle/alipay
+
 AliPay SDK for Golang
 
 ## 鸣谢
